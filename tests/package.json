@@ -1,0 +1,18 @@
+{
+  "name": "websocket-protocol-tests",
+  "version": "1.0.0",
+  "description": "WebSocket protocol and stress test suite",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "ws": "^8.18.0"
+  },
+  "jest": {
+    "testTimeout": 30000,
+    "verbose": true,
+    "testEnvironment": "node"
+  }
+}
