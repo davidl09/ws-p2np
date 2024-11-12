@@ -72,17 +72,24 @@ Server::Server() {
             }
 
             const string id = data.at("id");
-            const auto session = sessionManager.getSessionById(id);
-            if (not session) {
-                response["response"] = "bad_request";
-                response["reason"] = "session not found";
-            }
-            else if (session->addUser(&conn)) {
-                response["response"] = "success";
-                response["id"] = id;
-            } else {
-                response["response"] = "error";
-                response["reason"] = "user already in session";
+
+            switch(sessionManager.addUserToSession(&conn, id)) {
+                case SessionManager::ret::SESSION_NOT_FOUND:
+                    response["response"] = "bad_request";
+                    response["reason"] = "session not found";
+                    break;
+                case SessionManager::ret::SESSION_USER_EXISTS:
+                    response["response"] = "error";
+                    response["reason"] = "user already in session";
+                    break;
+                case SessionManager::ret::OK:
+                    response["response"] = "success";
+                    response["id"] = id;
+                    break;
+                default:
+                    response["response"] = "bad_request";
+                    response["reason"] = "server error";
+                    break;
             }
             CROW_LOG_INFO << "Received join request, replying " << response.dump();
             conn.send_text(response.dump());

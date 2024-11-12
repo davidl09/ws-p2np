@@ -17,8 +17,10 @@ std::string SessionManager::createNewSession(crow::websocket::connection *newMem
         session = generateRandomSessionName();
     }
     while (sessions.contains(session));
+
+    std::scoped_lock lock(mtx);
     sessions.insert({session, {}});
-    sessions[session].addUser(newMember);
+    sessions.at(session).addUser(newMember);
     return session;
 }
 
@@ -32,10 +34,14 @@ SessionManager::Session *SessionManager::getSessionById(const std::string &id) {
 
 SessionManager::ret SessionManager::addUserToSession(crow::websocket::connection *newMember,
                                                      const std::string &sessionID) {
+    if (not newMember) {
+        return ret::NULL_CONN_PTR;
+    }
     if (not sessions.contains(sessionID)) {
         return ret::SESSION_NOT_FOUND;
     }
 
+    std::scoped_lock lock(mtx);
     if (not sessions.at(sessionID).addUser(newMember)) {
         return ret::SESSION_USER_EXISTS;
     }
@@ -48,6 +54,7 @@ SessionManager::ret SessionManager::removeUserFromAny(crow::websocket::connectio
         return ret::NULL_CONN_PTR;
     }
 
+    std::scoped_lock lock(mtx);
     for (auto& [id, s] : sessions) {
         if (s.removeUser(userToRemove) == ret::OK) {
 

@@ -1,4 +1,4 @@
 cmake-build-debug/
 cmake-build-release/
 bin/
-tests/node_modules/
+**/node_modules/

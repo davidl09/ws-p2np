@@ -38,7 +38,7 @@ public:
             return ret::USER_NOT_FOUND;
         }
 
-        bool containsUser(const crow::websocket::connection *conn) {
+        bool containsUser(const crow::websocket::connection *conn) const {
             return std::ranges::find(members, conn) != members.end();
         }
 
@@ -73,7 +73,7 @@ public:
 
 private:
     std::unordered_map<std::string, Session> sessions;
-
+    std::mutex mtx;
     static std::string generateRandomSessionName();
 };
 
